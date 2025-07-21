@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ThetaLink</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+
+    body {
+      font-family: 'Comic Neue', cursive, sans-serif;
+      background-color: #F5F7FA;
+      margin: 20px;
+      color: #333333;
+    }
+
+    h1 {
+      color: #3F51B5;
+      font-size: 28px;
+      text-align: center;
+    }
+
+    #main-container {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    #emotion-section {
+      flex: 1 1 300px;
+      max-width: 500px;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 2px dashed #009688;
+      border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    #emotion {
+      font-weight: 600;
+      margin-top: 12px;
+      color: #FFC107;
+      text-align: center;
+    }
+
+    .gradient-wrapper {
+      position: relative;
+      display: inline-block;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 0 20px rgba(63, 81, 181, 0.3);
+    }
+
+    .gradient-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, #C5C6E0, #A4EBF3, #D9B8FF);
+      animation: pulseBackground 8s ease-in-out infinite;
+      z-index: 0;
+      filter: blur(80px);
+    }
+
+    .gradient-wrapper img {
+      position: relative;
+      z-index: 1;
+      border-radius: 16px;
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 3px solid #F5F7FA;
+    }
+
+    @keyframes pulseBackground {
+      0% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.7; }
+    }
+
+    audio {
+      display: block;
+      margin: 10px auto;
+    }
+
+    button[onclick="detectEmotion()"] {
+      display: block;
+      margin: 20px auto 0 auto;
+      padding: 12px 20px;
+      background-color: #7C4DFF;
+      border: none;
+      border-radius: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      color: white;
+      font-family: 'Comic Neue', cursive;
+      font-size: 16px;
+    }
+
+    button[onclick="detectEmotion()"]:hover {
+      background-color: #673ab7;
+    }
+
+    #chat-container {
+      flex: 1 1 300px;
+      width: calc(100% - 4mm);
+      overflow-y: auto;
+      padding: 12px;
+      box-sizing: border-box;
+      border: 2px dashed #009688;
+      border-radius: 16px;
+      background-color: #F5F7FA;
+    }
+
+    h3 {
+      color: #3F51B5;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    #chat-box {
+      height: 450px;
+      width: calc(100% - 4mm);
+      overflow-y: auto;
+      padding: 12px;
+      border: 2px dashed #009688;
+      border-radius: 16px;
+      background-color: #F5F7FA;
+    }
+
+    .message {
+      margin: 10px 0;
+      padding: 8px 12px;
+      border-radius: 20px;
+      max-width: 85%;
+      line-height: 1.4;
+    }
+
+    .user {
+      background-color: #C5E1F9;
+      text-align: right;
+      margin-left: auto;
+      color: #333333;
+    }
+
+    .bot {
+      background-color: #E1D7FF;
+      text-align: left;
+      margin-right: auto;
+      color: #333333;
+    }
+
+    /* ✅ Wrapper for input & send button */
+    #input-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 10px;
+      border: 1.5px solid #009688;
+      border-radius: 10px;
+      background-color: #ffffff;
+      font-family: 'Comic Neue', cursive;
+    }
+
+    #send-btn {
+      flex-shrink: 0;
+      padding: 10px 18px;
+      border: none;
+      background-color: #7C4DFF;
+      color: white;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+      font-family: 'Comic Neue', cursive;
+      font-size: 16px;
+    }
+
+    #send-btn:hover {
+      background-color: #5e35b1;
+    }
+
+    @media (max-width: 900px) {
+      #main-container {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #emotion-section,
+      #chat-container {
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>ThetaLink: Neural Pathway Reconditioning</h1>
+
+  <div id="main-container">
+    <!-- Emotion Detection Section -->
+    <div id="emotion-section">
+      <div class="gradient-wrapper">
+        <img src="{{ url_for('video_feed') }}" alt="Webcam Feed" />
+      </div>
+      <button onclick="detectEmotion()">NeuroEcho</button>
+      <p id="emotion"></p>
+      <audio id="audioPlayer" controls style="display:none;"></audio>
+    </div>
+
+    <!-- Chatbot Section -->
+    <div id="chat-container">
+      <h3>SynMind</h3>
+      <div id="chat-box"></div>
+
+      <!-- ✅ Chat Input + Button Wrapper -->
+      <div id="input-wrapper">
+        <input type="text" id="user-input" placeholder="How are you feeling today?" />
+        <button id="send-btn" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentEmotion = "Neutral";
+
+    function detectEmotion() {
+      fetch('/get_emotion', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          currentEmotion = data.emotion;
+          document.getElementById('emotion').innerText = "💡 Detected Emotion: " + currentEmotion;
+
+          const audio = document.getElementById('audioPlayer');
+          audio.style.display = 'block';
+
+          const audioFile = '/static/subliminals/' + currentEmotion.toLowerCase() + '.mp3';
+          audio.src = audioFile;
+          audio.play();
+        })
+        .catch(err => {
+          console.error('Emotion detection failed:', err);
+        });
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('user-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const chatBox = document.getElementById('chat-box');
+
+      const userMsg = document.createElement('div');
+      userMsg.className = 'message user';
+      userMsg.innerText = message;
+      chatBox.appendChild(userMsg);
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      input.value = '';
+
+      fetch('/chatbot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: message })
+      })
+        .then(response => response.json())
+        .then(data => {
+          const botMsg = document.createElement('div');
+          botMsg.className = 'message bot';
+          botMsg.innerText = data.reply;
+          chatBox.appendChild(botMsg);
+          chatBox.scrollTop = chatBox.scrollHeight;
+        })
+        .catch(err => {
+          console.error('Chatbot error:', err);
+        });
+    }
+  </script>
+</body>
+</html>
